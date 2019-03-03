@@ -17,6 +17,14 @@
 
     <div class="panel" v-show="isLoginTab">
       <form class="form" @submit.prevent="login">
+        <div v-if="loginErrorMessages" class="errors">
+          <ul v-if="loginErrorMessages.email">
+            <li v-for="msg in loginErrorMessages.email" :key="msg">{{ msg }}</li>
+          </ul>
+          <ul v-if="loginErrorMessages.password">
+            <li v-for="msg in loginErrorMessages.password" :key="msg">{{ msg }}</li>
+          </ul>
+        </div>
         <label for="login-email">Email</label>
         <input type="text" class="form__item" id="login-email" v-model="loginForm.email">
         <label for="login-password">Password</label>
@@ -29,6 +37,17 @@
 
     <div class="panel" v-show="isRegisterTab">
       <form class="form" @submit.prevent="register">
+        <div v-if="registerErrorMessages" class="errors">
+          <ul v-if="registerErrorMessages.name">
+            <li v-for="msg in registerErrorMessages.name" :key="msg">{{ msg }}</li>
+          </ul>
+          <ul v-if="registerErrorMessages.email">
+            <li v-for="msg in registerErrorMessages.email" :key="msg">{{ msg }}</li>
+          </ul>
+          <ul v-if="registerErrorMessages.password">
+            <li v-for="msg in registerErrorMessages.password" :key="msg">{{ msg }}</li>
+          </ul>
+        </div>
         <label for="username">Name</label>
         <input type="text" class="form__item" id="username" v-model="registerForm.name">
         <label for="email">Email</label>
@@ -47,6 +66,8 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
+
   const LOGIN = 'login'
   const REGISTER = 'register'
 
@@ -80,7 +101,9 @@
       },
       registerClass () {
         return { 'tab__item--active': this.isRegisterTab }
-      }
+      },
+
+      ...mapState('auth', ['apiStatus', 'loginErrorMessages', 'registerErrorMessages']),
     },
 
     methods: {
@@ -88,15 +111,19 @@
         // authストアのloginアクションを呼び出す
         await this.$store.dispatch('auth/login', this.loginForm)
 
-        // トップページに移動する
-        this.$router.push('/')
+        if (this.apiStatus) {
+          // トップページに移動する
+          this.$router.push('/')
+        }
       },
       async register () {
         // authストアのregisterアクションを呼び出す
         await this.$store.dispatch('auth/register', this.registerForm)
 
-        // トップページに移動する
-        this.$router.push('/')
+        if (this.apiStatus) {
+          // トップページに移動する
+          this.$router.push('/')
+        }
       },
 
       loginTabClick () {
@@ -104,7 +131,15 @@
       },
       registerTabClick () {
         this.tab = REGISTER
+      },
+
+      clearError () {
+        this.$store.commit('auth/setLoginErrorMessages', null)
+        this.$store.commit('auth/setRegisterErrorMessages', null)
       }
+    },
+    created () {
+      this.clearError()
     }
   }
 </script>
