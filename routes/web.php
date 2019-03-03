@@ -11,9 +11,11 @@
 |
 */
 
-Route::post('/register', 'Auth\RegisterController@register')->name('register');
-Route::post('/login', 'Auth\LoginController@login')->name('login');
-Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
+Route::prefix('api')->group(function () {
+    Route::post('/register', 'Auth\RegisterController@register')->name('register');
+    Route::post('/login', 'Auth\LoginController@login')->name('login');
+    Route::post('/logout', 'Auth\LoginController@logout')->name('logout');
+});
 
 Route::get('/{any?}', function () {
     return view('index');
