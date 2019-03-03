@@ -2,7 +2,10 @@ const state = {
   user: null
 }
 
-const getters = {}
+const getters = {
+  check: state => !!state.user,
+  username: state => state.user ? state.user.name : ''
+}
 
 const mutations = {
   setUser (state, user) {
@@ -22,6 +25,11 @@ const actions = {
   async logout ({ commit }, payload) {
     await axios.post('/api/logout', payload)
     commit('setUser', null)
+  },
+  async currentUser ({ commit }) {
+    const { data } = await axios.get('/api/user')
+    const user = data || null
+    commit('setUser', user)
   }
 }
 
